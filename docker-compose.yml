@@ -1,0 +1,205 @@
+x-backend-env: &backend-env
+  LOG_MODE: "${LOG_MODE:-development}"
+  PORT: "8080"
+  RUN_SERVER: "true"
+  RUN_WORKER: "false"
+  RUN_MIGRATIONS: "true"
+
+  POSTGRES_HOST: "db"
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: "${POSTGRES_USER:-neurobridge}"
+  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-neurobridge}"
+  POSTGRES_NAME: "${POSTGRES_NAME:-neurobridge}"
+
+  REDIS_ADDR: "redis:6379"
+  REDIS_CHANNEL: "${REDIS_CHANNEL:-sse}"
+
+  JWT_SECRET_KEY: "${JWT_SECRET_KEY:-super-secret-jwt-key}"
+  ACCESS_TOKEN_TTL: "${ACCESS_TOKEN_TTL:-3600}"
+  REFRESH_TOKEN_TTL: "${REFRESH_TOKEN_TTL:-86400}"
+  NONCE_REFRESH_TTL: "${NONCE_REFRESH_TTL:-86400}"
+
+  GOOGLE_OIDC_CLIENT_ID: "${GOOGLE_OIDC_CLIENT_ID}"
+  APPLE_OIDC_CLIENT_ID: "${APPLE_OIDC_CLIENT_ID}"
+
+  AVATAR_GCS_BUCKET_NAME: "${AVATAR_GCS_BUCKET_NAME:-neurobridge-avatar}"
+  MATERIAL_GCS_BUCKET_NAME: "${MATERIAL_GCS_BUCKET_NAME:-neurobridge-materials}"
+  AVATAR_CDN_DOMAIN: "${AVATAR_CDN_DOMAIN:-}"
+  MATERIAL_CDN_DOMAIN: "${MATERIAL_CDN_DOMAIN:-}"
+
+  GOOGLE_APPLICATION_CREDENTIALS: "/run/secrets/gcp_sa"
+  GOOGLE_APPLICATION_CREDENTIALS_JSON: "/run/secrets/gcp_sa"
+
+  AVATAR_COLORS_JSON_PATH: "/app/json/colors/avatar.json"
+  AVATAR_FONT: "/app/fonts/Riforma-Bold.ttf"
+
+  OPENAI_API_KEY: "${OPENAI_API_KEY}"
+  OPENAI_BASE_URL: "${OPENAI_BASE_URL:-https://api.openai.com}"
+  OPENAI_MODEL: "${OPENAI_MODEL:-gpt-5.2}"
+  OPENAI_EMBED_MODEL: "${OPENAI_EMBED_MODEL:-text-embedding-3-large}"
+  OPENAI_IMAGE_MODEL: "${OPENAI_IMAGE_MODEL:-}"
+  OPENAI_IMAGE_SIZE: "${OPENAI_IMAGE_SIZE:-}"
+  OPENAI_VIDEO_MODEL: "${OPENAI_VIDEO_MODEL:-}"
+  OPENAI_VIDEO_SIZE: "${OPENAI_VIDEO_SIZE:-}"
+  OPENAI_TIMEOUT_SECONDS: "${OPENAI_TIMEOUT_SECONDS:-}"
+  OPENAI_MAX_RETRIES: "${OPENAI_MAX_RETRIES:-}"
+  OPENAI_VISION_TIMEOUT_SECONDS: "${OPENAI_VISION_TIMEOUT_SECONDS:-}"
+
+  VISION_OCR_OUTPUT_PREFIX: "${VISION_OCR_OUTPUT_PREFIX:-}"
+  GCP_PROJECT_ID: "${GCP_PROJECT_ID}"
+  DOCUMENTAI_LOCATION: "${DOCUMENTAI_LOCATION:-us}"
+  DOCUMENTAI_PROCESSOR_ID: "${DOCUMENTAI_PROCESSOR_ID}"
+  DOCUMENTAI_PROCESSOR_VERSION: "${DOCUMENTAI_PROCESSOR_VERSION}"
+
+  PINECONE_API_KEY: "${PINECONE_API_KEY}"
+  PINECONE_API_VERSION: "${PINECONE_API_VERSION:-}"
+  PINECONE_BASE_URL: "${PINECONE_BASE_URL:-}"
+  PINECONE_INDEX_NAME: "${PINECONE_INDEX_NAME:-}"
+  PINECONE_INDEX_HOST: "${PINECONE_INDEX_HOST:-}"
+  PINECONE_NAMESPACE_PREFIX: "${PINECONE_NAMESPACE_PREFIX:-}"
+
+  TWILIO_ACCOUNT_SID: "${TWILIO_ACCOUNT_SID}"
+  TWILIO_AUTH_TOKEN: "${TWILIO_AUTH_TOKEN}"
+  TWILIO_API_KEY: "${TWILIO_API_KEY}"
+  TWILIO_API_KEY_SECRET: "${TWILIO_API_KEY_SECRET}"
+  TWILIO_FROM_NUMBER: "${TWILIO_FROM_NUMBER}"
+  TWILIO_MESSAGING_SERVICE_SID: "${TWILIO_MESSAGING_SERVICE_SID}"
+  TWILIO_STATUS_CALLBACK_URL: "${TWILIO_STATUS_CALLBACK_URL}"
+  TWILIO_BASE_URL: "${TWILIO_BASE_URL}"
+  TWILIO_TIMEOUT_SECONDS: "${TWILIO_TIMEOUT_SECONDS}"
+  TWILIO_MAX_RETRIES: "${TWILIO_MAX_RETRIES}"
+
+  SENDGRID_API_KEY: "${SENDGRID_API_KEY}"
+  SENDGRID_FROM_EMAIL: "${SENDGRID_FROM_EMAIL}"
+  SENDGRID_FROM_NAME: "${SENDGRID_FROM_NAME}"
+  SENDGRID_BASE_URL: "${SENDGRID_BASE_URL}"
+  SENDGRID_TIMEOUT_SECONDS: "${SENDGRID_TIMEOUT_SECONDS}"
+  SENDGRID_MAX_RETRIES: "${SENDGRID_MAX_RETRIES}"
+
+  WORKER_CONCURRENCY: "${WORKER_CONCURRENCY:-4}"
+
+  SAGA_CLEANUP_OLDER_HOURS: "${SAGA_CLEANUP_OLDER_HOURS:-}"
+  SAGA_CLEANUP_LIMIT: "${SAGA_CLEANUP_LIMIT:-}"
+
+  LEARNING_BUILD_MODE: "${LEARNING_BUILD_MODE:-}"
+  LEARNING_BUILD_MIN_POLL_MS: "${LEARNING_BUILD_MIN_POLL_MS:-}"
+  LEARNING_BUILD_MAX_POLL_MS: "${LEARNING_BUILD_MAX_POLL_MS:-}"
+  LEARNING_BUILD_CHILD_MAX_MINUTES: "${LEARNING_BUILD_CHILD_MAX_MINUTES:-}"
+  LEARNING_BUILD_CHILD_STALE_RUNNING_MINUTES: "${LEARNING_BUILD_CHILD_STALE_RUNNING_MINUTES:-}"
+
+  EMBED_CHUNKS_BATCH_SIZE: "${EMBED_CHUNKS_BATCH_SIZE:-}"
+  EMBED_CHUNKS_CONCURRENCY: "${EMBED_CHUNKS_CONCURRENCY:-}"
+
+  NODE_CONTENT_BUILD_CONCURRENCY: "${NODE_CONTENT_BUILD_CONCURRENCY:-}"
+  NODE_DOC_BUILD_CONCURRENCY: "${NODE_DOC_BUILD_CONCURRENCY:-}"
+  NODE_DOC_MUST_CITE_PER_NODE: "${NODE_DOC_MUST_CITE_PER_NODE:-}"
+  NODE_FIGURES_PLAN_CONCURRENCY: "${NODE_FIGURES_PLAN_CONCURRENCY:-}"
+  NODE_FIGURES_RENDER_CONCURRENCY: "${NODE_FIGURES_RENDER_CONCURRENCY:-}"
+  NODE_VIDEOS_PLAN_CONCURRENCY: "${NODE_VIDEOS_PLAN_CONCURRENCY:-}"
+  NODE_VIDEOS_RENDER_CONCURRENCY: "${NODE_VIDEOS_RENDER_CONCURRENCY:-}"
+
+  INGEST_CHUNKS_FILE_TIMEOUT_MINUTES: "${INGEST_CHUNKS_FILE_TIMEOUT_MINUTES:-}"
+  INGEST_CHUNKS_JOB_TIMEOUT_MINUTES: "${INGEST_CHUNKS_JOB_TIMEOUT_MINUTES:-}"
+  INGEST_CHUNKS_HEARTBEAT_SECONDS: "${INGEST_CHUNKS_HEARTBEAT_SECONDS:-}"
+
+services:
+  db:
+    image: postgres:16
+    container_name: neurobridge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-neurobridge}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-neurobridge}"
+      POSTGRES_DB: "${POSTGRES_NAME:-neurobridge}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-neurobridge} -d ${POSTGRES_NAME:-neurobridge}",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    container_name: neurobridge-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  backend-api:
+    build:
+      context: ../neurobridge-backend
+      dockerfile: Dockerfile
+    container_name: neurobridge-backend-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *backend-env
+      RUN_SERVER: "true"
+      RUN_WORKER: "false"
+      RUN_MIGRATIONS: "true"
+    secrets:
+      - gcp_sa
+    ports:
+      - "${BACKEND_API_PORT:-8080}:8080"
+
+  backend-worker:
+    build:
+      context: ../neurobridge-backend
+      dockerfile: Dockerfile.worker
+    container_name: neurobridge-backend-worker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *backend-env
+      RUN_SERVER: "false"
+      RUN_WORKER: "true"
+      RUN_MIGRATIONS: "false"
+    secrets:
+      - gcp_sa
+
+  frontend:
+    image: node:22-alpine
+    container_name: neurobridge-frontend
+    working_dir: /app
+    volumes:
+      - ../neurobridge-frontend:/app
+    environment:
+      VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:${BACKEND_API_PORT:-8080}/api}"
+      VITE_GOOGLE_OIDC_CLIENT_ID: "${GOOGLE_OIDC_CLIENT_ID}"
+      VITE_GOOGLE_CLIENT_ID: "${GOOGLE_OIDC_CLIENT_ID}"
+      VITE_APPLE_OIDC_CLIENT_ID: "${APPLE_OIDC_CLIENT_ID}"
+      VITE_APPLE_CLIENT_ID: "${APPLE_OIDC_CLIENT_ID}"
+      VITE_APPLE_REDIRECT_URI: "${VITE_APPLE_REDIRECT_URI:-}"
+    command:
+      ["sh", "-c", "npm install && npm run dev -- --host 0.0.0.0 --port 5174"]
+    ports:
+      - "5174:5174"
+    depends_on:
+      - backend-api
+
+secrets:
+  gcp_sa:
+    file: ./secrets/gcp_sa.json
+
+volumes:
+  pgdata:
