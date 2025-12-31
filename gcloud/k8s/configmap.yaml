@@ -23,8 +23,8 @@ data:
   GCP_PROJECT_ID: "wise-vim-480800-n2"
   AVATAR_GCS_BUCKET_NAME: "neurobridge-avatar"
   MATERIAL_GCS_BUCKET_NAME: "neurobridge-materials"
-  AVATAR_CDN_DOMAIN: "cdn.slotter.ai"
-  MATERIAL_CDN_DOMAIN: "cdn.slotter.ai"
+  AVATAR_CDN_DOMAIN: "cdn.neurobridge.dev"
+  MATERIAL_CDN_DOMAIN: "cdn.neurobridge.dev"
   GOOGLE_APPLICATION_CREDENTIALS: "/run/secrets/gcp_sa.json"
   GOOGLE_APPLICATION_CREDENTIALS_JSON: "/run/secrets/gcp_sa.json"
 

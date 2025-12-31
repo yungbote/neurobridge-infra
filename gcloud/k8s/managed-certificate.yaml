@@ -5,5 +5,5 @@ metadata:
   namespace: neurobridge
 spec:
   domains:
-    - slotter.ai
-    - www.slotter.ai
+    - neurobridge.dev
+    - www.neurobridge.dev
