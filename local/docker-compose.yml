@@ -142,7 +142,7 @@ services:
 
   backend-api:
     build:
-      context: ../neurobridge-backend
+      context: ../../neurobridge-backend
       dockerfile: Dockerfile
     container_name: neurobridge-backend-api
     restart: unless-stopped
@@ -163,7 +163,7 @@ services:
 
   backend-worker:
     build:
-      context: ../neurobridge-backend
+      context: ../../neurobridge-backend
       dockerfile: Dockerfile.worker
     restart: unless-stopped
     depends_on:
@@ -184,7 +184,7 @@ services:
     container_name: neurobridge-frontend
     working_dir: /app
     volumes:
-      - ../neurobridge-frontend:/app
+      - ../../neurobridge-frontend:/app
     environment:
       VITE_API_BASE_URL: "${VITE_API_BASE_URL:-http://localhost:${BACKEND_API_PORT:-8080}/api}"
       VITE_GOOGLE_OIDC_CLIENT_ID: "${GOOGLE_OIDC_CLIENT_ID}"

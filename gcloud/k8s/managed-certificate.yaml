@@ -1,0 +1,9 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: neurobridge-cert
+  namespace: neurobridge
+spec:
+  domains:
+    - slotter.ai
+    - www.slotter.ai

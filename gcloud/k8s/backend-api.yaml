@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+  namespace: neurobridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-api
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      containers:
+        - name: backend-api
+          image: {{IMAGE_BACKEND}}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: RUN_SERVER
+              value: "true"
+            - name: RUN_WORKER
+              value: "false"
+            - name: RUN_MIGRATIONS
+              value: "true"
+          envFrom:
+            - configMapRef:
+                name: neurobridge-config
+            - secretRef:
+                name: neurobridge-secrets
+          volumeMounts:
+            - name: gcp-sa
+              mountPath: /run/secrets/gcp_sa.json
+              subPath: gcp_sa.json
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.11.0
+          args:
+            - "--address=0.0.0.0"
+            - "--port=5432"
+            - "$(CLOUD_SQL_CONNECTION_NAME)"
+            - "--credentials-file=/run/secrets/gcp_sa.json"
+          env:
+            - name: CLOUD_SQL_CONNECTION_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: neurobridge-config
+                  key: CLOUD_SQL_CONNECTION_NAME
+          volumeMounts:
+            - name: gcp-sa
+              mountPath: /run/secrets/gcp_sa.json
+              subPath: gcp_sa.json
+              readOnly: true
+      volumes:
+        - name: gcp-sa
+          secret:
+            secretName: gcp-sa
+            items:
+              - key: gcp_sa.json
+                path: gcp_sa.json
