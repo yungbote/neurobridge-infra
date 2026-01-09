@@ -79,6 +79,21 @@ x-backend-env: &backend-env
 
   WORKER_CONCURRENCY: "${WORKER_CONCURRENCY:-12}"
 
+  # Local Temporal (avoid inheriting host env overrides like TEMPORAL_NAMESPACE=default).
+  TEMPORAL_ADDRESS: "temporal:7233"
+  TEMPORAL_NAMESPACE: "neurobridge"
+  TEMPORAL_TASK_QUEUE: "neurobridge"
+  TEMPORAL_CLIENT_CERT_PATH: "${TEMPORAL_CLIENT_CERT_PATH:-}"
+  TEMPORAL_CLIENT_KEY_PATH: "${TEMPORAL_CLIENT_KEY_PATH:-}"
+  TEMPORAL_CLIENT_CA_PATH: "${TEMPORAL_CLIENT_CA_PATH:-}"
+  # Local dev convenience: auto-create the namespace if missing (Temporal Cloud should pre-provision).
+  TEMPORAL_AUTO_REGISTER_NAMESPACE: "true"
+  TEMPORAL_NAMESPACE_RETENTION_DAYS: "${TEMPORAL_NAMESPACE_RETENTION_DAYS:-7}"
+  TEMPORAL_NAMESPACE_ENSURE_TIMEOUT_SECONDS: "${TEMPORAL_NAMESPACE_ENSURE_TIMEOUT_SECONDS:-10}"
+  # Override any host env that may set these to 0 and cause flakey local boots.
+  TEMPORAL_DIAL_MAX_WAIT_SECONDS: "120"
+  TEMPORAL_WORKER_START_MAX_WAIT_SECONDS: "120"
+
   LIBRARY_TAXONOMY_MAX_MEMBERSHIPS_PER_FACET: "${LIBRARY_TAXONOMY_MAX_MEMBERSHIPS_PER_FACET:-4}"
   LIBRARY_TAXONOMY_MAX_NEW_NODES_PER_FACET: "${LIBRARY_TAXONOMY_MAX_NEW_NODES_PER_FACET:-2}"
   LIBRARY_TAXONOMY_ASSIGN_SIMILARITY_THRESHOLD_PCT: "${LIBRARY_TAXONOMY_ASSIGN_SIMILARITY_THRESHOLD_PCT:-82}"
@@ -173,6 +188,57 @@ services:
       timeout: 3s
       retries: 30
 
+  temporal-db:
+    image: postgres:16
+    container_name: neurobridge-temporal-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${TEMPORAL_POSTGRES_USER:-temporal}"
+      POSTGRES_PASSWORD: "${TEMPORAL_POSTGRES_PASSWORD:-temporal}"
+      POSTGRES_DB: "${TEMPORAL_POSTGRES_DB:-temporal}"
+    volumes:
+      - temporal_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${TEMPORAL_POSTGRES_USER:-temporal} -d ${TEMPORAL_POSTGRES_DB:-temporal}",
+        ]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  temporal:
+    image: temporalio/auto-setup:1.25.0
+    container_name: neurobridge-temporal
+    restart: unless-stopped
+    depends_on:
+      temporal-db:
+        condition: service_healthy
+    environment:
+      DB: "postgres12"
+      DB_PORT: "5432"
+      POSTGRES_SEEDS: "temporal-db"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: "${TEMPORAL_POSTGRES_USER:-temporal}"
+      POSTGRES_PWD: "${TEMPORAL_POSTGRES_PASSWORD:-temporal}"
+      POSTGRES_PASSWORD: "${TEMPORAL_POSTGRES_PASSWORD:-temporal}"
+      POSTGRES_DB: "${TEMPORAL_POSTGRES_DB:-temporal}"
+    ports:
+      - "7233:7233"
+
+  temporal-ui:
+    image: temporalio/ui:2.31.2
+    container_name: neurobridge-temporal-ui
+    restart: unless-stopped
+    depends_on:
+      - temporal
+    environment:
+      TEMPORAL_ADDRESS: "temporal:7233"
+      TEMPORAL_NAMESPACE: "neurobridge"
+    ports:
+      - "8088:8080"
+
   redis:
     image: redis:7-alpine
     container_name: neurobridge-redis
@@ -196,6 +262,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      temporal:
+        condition: service_started
     environment:
       <<: *backend-env
       RUN_SERVER: "true"
@@ -216,6 +284,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      temporal:
+        condition: service_started
     environment:
       <<: *backend-env
       RUN_SERVER: "false"
@@ -252,3 +322,4 @@ secrets:
 
 volumes:
   pgdata:
+  temporal_pgdata:

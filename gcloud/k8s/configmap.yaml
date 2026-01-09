@@ -56,6 +56,12 @@ data:
 
   WORKER_CONCURRENCY: "40"
 
+  # Temporal (production: Temporal Cloud)
+  TEMPORAL_TASK_QUEUE: "neurobridge"
+  TEMPORAL_CLIENT_CERT_PATH: "/run/secrets/temporal/client.crt"
+  TEMPORAL_CLIENT_KEY_PATH: "/run/secrets/temporal/client.key"
+  TEMPORAL_CLIENT_CA_PATH: ""
+
   # Library taxonomy (path organization)
   LIBRARY_TAXONOMY_MAX_MEMBERSHIPS_PER_FACET: "4"
   LIBRARY_TAXONOMY_MAX_NEW_NODES_PER_FACET: "2"

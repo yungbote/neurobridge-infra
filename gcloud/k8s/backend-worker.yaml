@@ -34,6 +34,9 @@ spec:
               mountPath: /run/secrets/gcp_sa.json
               subPath: gcp_sa.json
               readOnly: true
+            - name: temporal-mtls
+              mountPath: /run/secrets/temporal
+              readOnly: true
         - name: cloud-sql-proxy
           image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.11.0
           args:
@@ -59,3 +62,11 @@ spec:
             items:
               - key: gcp_sa.json
                 path: gcp_sa.json
+        - name: temporal-mtls
+          secret:
+            secretName: neurobridge-secrets
+            items:
+              - key: TEMPORAL_CLIENT_CERT_PEM
+                path: client.crt
+              - key: TEMPORAL_CLIENT_KEY_PEM
+                path: client.key
