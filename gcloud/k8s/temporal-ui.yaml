@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-ui
+  namespace: neurobridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-ui
+  template:
+    metadata:
+      labels:
+        app: temporal-ui
+    spec:
+      containers:
+        - name: temporal-ui
+          image: temporalio/ui:2.31.2
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: "temporal:7233"
+            - name: TEMPORAL_NAMESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: neurobridge-config
+                  key: TEMPORAL_NAMESPACE
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-ui
+  namespace: neurobridge
+spec:
+  selector:
+    app: temporal-ui
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

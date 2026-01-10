@@ -75,6 +75,7 @@ On Apple Silicon, this script builds `linux/amd64` images by default. Override w
 8) Sync secrets to Google Secret Manager:
 ```
 cp secrets.env.example secrets.env
+# Ensure TEMPORAL_POSTGRES_PASSWORD is set (used by in-cluster Temporal).
 ./scripts/sync_secrets_to_gsm.sh
 ```
 
@@ -88,6 +89,11 @@ kubectl -n neurobridge create secret generic gcp-sa --from-file=gcp_sa.json=/pat
 ```
 export ZONE="us-central1-a" # if you created a zonal cluster
 ./scripts/deploy.sh
+```
+
+Optional: deploy Temporal UI (ClusterIP) by setting:
+```
+export DEPLOY_TEMPORAL_UI=true
 ```
 
 11) Get the external IP (use this for DNS A records):

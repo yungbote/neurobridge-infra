@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: temporal-postgres-data
+  namespace: neurobridge
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-postgres
+  namespace: neurobridge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporal-postgres
+  template:
+    metadata:
+      labels:
+        app: temporal-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          env:
+            # GKE persistent disks often include a `lost+found` at the mount root; using a subdir avoids initdb skipping.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: neurobridge-config
+                  key: TEMPORAL_POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: neurobridge-secrets
+                  key: TEMPORAL_POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: neurobridge-config
+                  key: TEMPORAL_POSTGRES_DB
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: temporal-postgres-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-postgres
+  namespace: neurobridge
+spec:
+  selector:
+    app: temporal-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
